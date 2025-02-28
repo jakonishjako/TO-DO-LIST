@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>to_do_list</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<style type="text/css">
+		.hidden
+		{
+			display: none;
+		}
+		.result
+		{
+			max-width: 150px;
+		}
+	</style>
+</head>
+<body class="">
+<div class="container-fluid">
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<h3 class='text-center'>To-Do-List-Creator</h3>
+		<div class="card card-body">
+			<button class="btn btn-sm btn-primary" id="add-test">Add task</button>
+			<div class="form-wrapper hidden mb-2">
+				<label for="task">Enter the Task :</label>
+				<input type="text" name="task" class="form-control" id='task-add'>
+				<label for="Timing">Select the Timing :</label>
+				<select class="form-control mb-2" id="test-timing" name="Timing">
+					<option>6AM - 8AM</option>
+					<option>9AM - 11AM</option>
+					<option>11AM - 1PM</option>
+					<option>2PM - 4PM</option>
+					<option>5PM - 7PM</option>
+					<option>8PM - 10PM</option>
+				</select>
+				<button class="btn btn-primary pt-2 d-block m-auto" id="sub-button">ADD</button>
+			</div>
+			<table class="table table-dark"> 
+				<thead>
+					<tr>
+						<th>Task_name</th>
+						<th>Timing</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody id='table_id'>
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div></div>
+</body>
+<script type="text/javascript">
+	let global_id=0
+	let new_task={'task_name':null,'id':null,'timing':null}
+	$('#add-test').on('click',function()
+	{
+		$('.form-wrapper').removeClass('hidden')
+	})
+
+	$('#test-timing').on('change',function()
+	{
+		if (new_task.timing) {}
+		new_task.timing=$(this).val() //to get the value of the current instance
+	})
+	$('#task-add').on('keyup',function()
+	{
+		new_task.task_name=$(this).val()
+	})
+	$('#sub-button').on('click',function()
+	{
+		if (new_task.timing==null)
+		{
+			new_task.timing='6AM - 8AM'
+		}
+		if(new_task.task_name==null || new_task.task_name=='')
+		{
+			alert('no task name given')
+		}
+		else
+		{
+			new_task.id=global_id++
+			add_row(new_task)
+			$('.form-wrapper').addClass('hidden')
+			$('#task-add').val('')
+			$('#test-name').val('')
+			new_task.timing=null
+			new_task.task_name=null
+			// new_task.id=null
+		}
+	})
+	function add_row(obj)
+	{
+		let row=`<tr class='row_${obj.id}'>
+				 <td id='task_name${obj.id}' data-testid=${obj.id}>${obj.task_name}</td>
+				 <td id='timing-${obj.id}'>${obj.timing}</td>
+		<td >
+		<button class='btn btn-danger' data-testid=${obj.id} id='delete-${obj.id}'>Delete</button>
+		<button class='btn btn-primary' data-testid=${obj.id} id='modify-${obj.id}'>Modify</button>
+		<button class='btn btn-danger hidden'  data-testid=${obj.id} id='save-${obj.id}'>Save</button>
+		<button class='btn btn-danger hidden' data-testid=${obj.id} id='cancel-${obj.id}'>Cancel</button>
+		<button class='btn btn-primary hidden' data-testid=${obj.id} id='confirm-${obj.id}'>Confirm</button></td></tr>`
+		$('#table_id').append(row)
+// remember not to forget the adding of # or data attributes as per your need 
+		$(`#delete-${obj.id}`).on('click',deletetask)
+		$(`#save-${obj.id}`).on('click',saveupdate)
+		$(`#confirm-${obj.id}`).on('click',confirmdeletion)
+		$(`#cancel-${obj.id}`).on('click',canceldeletion)
+		// $(`#task_name${obj.id}`).on('click',editresult)
+		$(`#modify-${obj.id}`).on('click',modifyvalues)
+	}
+	// function editresult()
+	// {
+	// 	let test_id=$(this).data('testid')
+	// 	let value=$(this).html()
+	// 	$(this).unbind()
+	// 	$(this).html(`<input type='text' class='result form-control' data-testid=${test_id} value='${value}' id=input${test_id}>`)
+	// 	$(`#input${test_id}`).on('keyup',function()
+	// 	{
+	// 		// let test_id=$('.result').data('testid')
+	// 		let savebtn=$(`#save-${test_id}`)
+	// 		savebtn.prop('disabled',false)
+	// 	})
+	// }
+	function deletetask()
+	{
+		let id=$(this).data('testid')
+		let modifybtn=$(`#modify-${id}`)
+		let deletebtn=$(`#delete-${id}`)
+		let savebtn=$(`#save-${id}`)
+		let cancelbtn=$(`#cancel-${id}`)
+		let confrimbtn=$(`#confirm-${id}`)
+
+		deletebtn.addClass('hidden')
+		savebtn.addClass('hidden')
+
+		cancelbtn.removeClass('hidden')
+		confrimbtn.removeClass('hidden')
+		modifybtn.addClass('hidden')
+	}
+
+	function canceldeletion()
+	{
+		let id=$(this).data('testid')
+		let modifybtn=$(`#modify-${id}`)
+		let cancel_btn=$(`#cancel-${id}`)
+		let deletebtn=$(`#delete-${id}`)
+		let confrimbtn=$(`#confirm-${id}`)
+		let savebtn=$(`#save-${id}`)
+
+		cancel_btn.addClass('hidden')
+		confrimbtn.addClass('hidden')
+
+		// savebtn.removeClass('hidden')
+		deletebtn.removeClass('hidden')
+		modifybtn.removeClass('hidden')
+	}
+	function confirmdeletion()
+	{
+		let id =$(this).data('testid')//to get the data atrributes and its values
+		let row=$(`.row_${id}`)
+		row.remove()
+	}
+	function saveupdate()
+	{
+		let id=$(this).data('testid')
+		let savebtn=$(`#save-${id}`)
+		let deletebtn=$(`#delete-${id}`)
+		let modifybtn=$(`#modify-${id}`)
+		let selectbtn=$(`#test-timing${id}`)
+		let row=$(`.row_${id}`)
+		savebtn.prop('disabled',true)
+		row.css('opacity','0.8')//css changing 
+		setTimeout(()=>
+		{
+			row.css('opacity','1')
+			let value=$(`#result${id}`).val()
+			if (value=='')
+			{
+				alert('enter the task name!!')
+			}else
+			{
+				// console.log(selectbtn.val())
+				$(`#timing-${id}`).html(selectbtn.val())
+			 	$(`#task_name${id}`).html(value)
+			 	deletebtn.removeClass('hidden')
+			 	modifybtn.removeClass('hidden')
+			 	savebtn.addClass('hidden')
+			 	savebtn.prop('disabled',false)
+			}
+		},1000)
+	}
+	 function modifyvalues()
+	 {
+	 	$(this).blur()
+	 	$(this).addClass('hidden')
+	 	let value_id=$(this).data('testid')
+	 	let save_btn=$(`#save-${value_id}`)
+	 	let delete_btn=$(`#delete-${value_id}`)
+	 	let select_td=$(`#timing-${value_id}`)
+	 	select_td_value=select_td.html()
+	 	select_td.html(`<select class="form-control mb-2 select" id="test-timing${value_id}" name="Timing" data-testid=${value_id}>
+					<option>6AM - 8AM</option>
+					<option>9AM - 11AM</option>
+					<option>11AM - 1PM</option>
+					<option>2PM - 4PM</option>
+					<option>5PM - 7PM</option>
+					<option>8PM - 10PM</option>
+				</select>`)
+	 	let td_=$(`#task_name${value_id}`)
+	 	td_value=td_.html()
+	 	td_.html(`<input class='result form-control' data-testid=${value_id} value='${td_value}' id='result${value_id}'>`)
+	 	save_btn.removeClass('hidden')
+	 	delete_btn.addClass('hidden')
+	 }
+</script>
+</html>
